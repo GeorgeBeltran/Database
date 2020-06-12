@@ -1,0 +1,140 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 #1. Create a prepared statement to display all employees' names in the department ? (Dno) .\
+\
+Prepare stmt1 FROM 'SELECT Fname FROM Employee WHERE Dno = ?';\
+SET @a = '5';\
+execute stmt1 USING @a;\
+deallocate prepare stmt1;\
+\
+  \
+\
+\
+#2. Define a procedure to display all Clients (Cname) who have some project with Department 5.\
+\
+delimiter //  \
+CREATE PROCEDURE SelectEmployee()\
+BEGIN\
+SELECT CName from Client where pno IN (SELECT Pnumber FROM Project WHERE Dnum = 5);\
+end //\
+ Delimiter ;\
+\
+SHOW CREATE procedure SelectEmployee;\
+Call SelectEmployee()\
+\
+\
+\
+\
+#3. Create a procedure to display the number of employees in the department, using Dno as the IN variable.\
+\
+delimiter //\
+create procedure GetEmployeeByDept(IN Dno int)\
+begin\
+select Count(*)\
+from EMPLOYEE E1\
+where E1.Dno=Dno;\
+end //\
+delimiter ;\
+\
+CALL GetEmployeeByDept('5');\
+\
+\
+\
+#4. Create a procedure to select the total number of projects of a department, using Dname as the IN variable, and define an OUT variable for the number of projects.\
+\
+DELIMITER //\
+create procedure dept_project_count(IN Dname varchar(20),OUT no_of_projects int)\
+BEGIN\
+select count(*) INTO no_of_projects from DEPARTMENT d,PROJECT p\
+where d.Dnumber=p.Dnum and d.Dname=Dname;\
+end //\
+delimiter ;\
+\
+\
+CALL dept_project_count('Research',@no_of_projects);\
+SELECT @no_of_projects;\
+\
+\
+\
+#5. Create a trigger on WORKS_ON, if a new tuple with Hours=NULL is inserted, set the Hours to 0.\
+\
+\
+\
+drop trigger set_hours_null;\
+delimiter //\
+CREATE TRIGGER set_hours_null\
+BEFORE INSERT ON works_on \
+FOR EACH ROW\
+BEGIN\
+IF NEW.Hours IS NULL THEN SET NEW.Hours = 0.0;\
+END IF;\
+ END;//\
+ delimiter ;\
+ \
+insert into WORKS_ON values ('123456789', '3', NULL); \
+SELECT * from WORKS_ON;\
+\
+\
+#6. Create a table with attributes SSN, dependent_name and ChangeTimeStamp, whenever a new tuple is inserted into DEPENDENT table, record the operation using a trigger.\
+\
+\
+Create TABLE New_row_update(\
+SSN INT(10) PRIMARY KEY,\
+dependent_name VARCHAR(30),\
+ChangeTimeStamp timestamp default current_timestamp \
+);\
+ \
+# DROP trigger 'row_update';\
+ \
+delimiter //\
+ Create Trigger row_update\
+ After Insert ON DEPENDENT\
+ for each row \
+ BEGIN \
+insert into New_row_update VALUES (NEW.ESSN, NEW.Dependent_name, current_timestamp());\
+END;//\
+delimiter ;\
+\
+insert into dependent values ('333445555', 'Scott', 'M', '1987-03-15', 'Son'); \
+SELECT * FROM New_row_update;\
+select * FROM dependent;\
+\
+\
+\
+#7. Create a trigger on CLIENT, whenever a tuple is deleted, delete all the tuples in PROJECT table and WORKS_ON table with the same Pno as the deleted tuple from CLIENT.\
+\
+\
+delimiter //\
+create Trigger DeletePno \
+After DELETE ON Client\
+For Each Row\
+Begin\
+	Delete From Works_On Where Works_On.pno = old.pno;\
+    Delete From Project Where Project.pnumber = old.pno;\
+End; //\
+delimiter ;\
+\
+\
+\
+#8. Create a trigger on EMPLOYEE, whenever a new employee is inserted, if the employee has salary higher than his/her supervisor, set the employee's salary to NULL.\
+\
+\
+Delimiter //\
+create trigger SalaryNULL\
+BEFore INSERT ON Employee\
+For Each row\
+begin\
+declare emp_sal integer;\
+declare super_sal integer;\
+SET emp_sal = new.salary;\
+Set super_sal = (SELECT salary FROM employee where new.super_ssn = ssn);\
+IF(emp_sal > super_sal) THEN\
+SET new.salary = NULL;\
+END If; \
+END; //\
+delimiter ;}

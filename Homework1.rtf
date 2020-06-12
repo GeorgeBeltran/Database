@@ -1,0 +1,117 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c20000\c20000\c20000;\cssrgb\c100000\c100000\c100000;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 1) SELECT \
+    emp.Fname, emp.Lname\
+FROM\
+    employee emp,\
+    works_on w,\
+    project p\
+WHERE\
+    emp.Dno = 5 AND emp.ssn = w.Essn\
+        AND w.Pno = p.pnumber\
+        AND p.pname = 'ProductX'\
+        AND w.hours > 10;\
+\
+\
+\
+\
+2) SELECT \
+    emp.Fname, emp.Lname\
+FROM\
+    employee emp,\
+    dependent d\
+WHERE\
+    emp.ssn = d.essn\
+        AND emp.Fname = d.Dependent_name;\
+\
+\
+\
+3) SELECT \
+    E1.Fname,E1.Minit,E1.Lname\
+FROM\
+    EMPLOYEE E1,\
+    EMPLOYEE E2\
+WHERE\
+    E1.Super_ssn = E2.Ssn\
+        AND E2.Fname = 'Franklin'\
+        AND E2.Lname = 'Wong';\
+\
+\
+4) SELECT \
+    pname, SUM(hours)\
+FROM\
+    project,\
+    works_on\
+WHERE\
+    pno = pnumber\
+GROUP BY pname;\
+\
+\
+\
+5) \cf2 \cb3 \expnd0\expndtw0\kerning0
+SELECT Fname from employee where not exists (Select Essn from works_on where ssn=essn and pno Not in (Select Pno from client where CName = \'91JPL\'92));
+\fs28 \cf2 \cb1 \
+
+\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+\
+\
+\
+6) \cf2 \cb3 \expnd0\expndtw0\kerning0
+SELECT Fname FROM EMPLOYEE WHERE Ssn NOT IN (SELECT Essn FROM WORKS_ON WHERE Pno =30 or pno=10));\cf2 \cb1 \
+\cf0 \kerning1\expnd0\expndtw0 \
+\
+\
+\
+7) SELECT Dname, avg(Salary) From employee, department where Dno=Dnumber group by Dname;\
+\
+\
+\
+\
+8) \cf2 \cb3 \expnd0\expndtw0\kerning0
+  Select avg(averages) as Average_total from(select sum(hours) as averages from employee e1, works_on z where e1.sex = 'F' and e1.Ssn=z.Essn Group by  e1.Ssn) as inner_query;\
+\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\
+9) SELECT \
+    Lname, Fname, Address\
+FROM\
+    employee\
+WHERE\
+    EXISTS( SELECT \
+            *\
+        FROM\
+            works_on,\
+            project\
+        WHERE\
+	essn = ssn AND Pno = Pnumber\
+                AND Plocation = 'Houston')\
+        AND NOT EXISTS( SELECT \
+            *\
+        FROM\
+            DEPT_LOCATIONS\
+        WHERE\
+            Dno = Dnumber AND Dlocation = 'Houston');\
+\
+\
+\
+10) SELECT \
+    Lname\
+FROM\
+    employee\
+WHERE\
+    EXISTS( SELECT \
+            *\
+        FROM\
+            department\
+        WHERE\
+            ssn = mgr_ssn)\
+        AND NOT EXISTS( SELECT \
+	    *\
+        FROM\
+            dependent\
+        WHERE\
+            ssn = essn);}
